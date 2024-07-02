@@ -1,19 +1,27 @@
+from update_rrlalgo_repo import clone_or_update_repo
+import sys
+REPO_URL = 'https://github.com/roihezkiyahu/RLAlgorithms.git'
+REPO_DIR = 'RLAlgorithms'
+clone_or_update_repo(REPO_URL, REPO_DIR)
+sys.path.append('RLAlgorithms')
+
 from SnakeGame.snake_game import SnakeGame
-from modeling.models import CNNDQNAgent, ActorCritic
-from modeling.trainer import Trainer
-from modeling.SnakeWrapper import SnakeGameWrap
-import copy
+from snake_modeling.SnakeWrapper import SnakeGameWrap
 import os
-from modeling.game_viz import GameVisualizer, GameVisualizer_cv2
-from modeling.A2C import A2CAgent
-from Atari_runner import (load_config, initialize_game, get_game_wrapper, train_a2c, train_ppo,
+from snake_modeling.game_viz import GameVisualizer_cv2
+from RLAlgorithms.Atari_runner import (load_config, initialize_game, get_game_wrapper, train_a2c, train_ppo,
                           create_models, initialize_trainer)
+
 
 
 def train_agent(config_path, conv_layers_params, fc_layers, continuous=None, a2c=False,
                 game_wrapper=None, game=None, ppo=False):
     config = load_config(config_path)
-    conv_layers_params = conv_layers_params.copy() if not conv_layers_params is None else None
+    if not conv_layers_params is None:
+        conv_layers_params = conv_layers_params.copy()
+    else:
+        conv_layers_params = config.get("conv_layers_params", None)
+    fc_layers = fc_layers if not fc_layers is None else config["fc_layers"]
     if game is None:
         game = initialize_game(config, continuous)
     game_wrapper = get_game_wrapper(game, config, game_wrapper)
@@ -37,130 +45,122 @@ def train_agent(config_path, conv_layers_params, fc_layers, continuous=None, a2c
         pass
 
 if __name__ == "__main__":
-    conv_layers_params = [
-        {'in_channels': 11, 'out_channels': 16, 'kernel_size': 3, 'stride': 1, 'padding': 1},
-        {'in_channels': 16, 'out_channels': 32, 'kernel_size': 3, 'stride': 2, 'padding': 1},
-        {'in_channels': 32, 'out_channels': 64, 'kernel_size': 3, 'stride': 2, 'padding': 1},
-        {'in_channels': 64, 'out_channels': 128, 'kernel_size': 3, 'stride': 2, 'padding': 1}
-    ]
-    fc_layers = [512]
-
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_bs32.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_bs32.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_bs512.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_bs512.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_lendepreward.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_lendepreward.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_gamma90.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_gamma90.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_noextra.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_noextra.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_ncpp.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_ncpp.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_closefood5005k_nodeathind.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_closefood5005k_nodeathind.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_closefood5005k_nodir.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_closefood5005k_nodir.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_closefood5005k_nofooddir.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_closefood5005k_nofooddir.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_closefood5005k_nolenaware.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_closefood5005k_nolenaware.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_closefood5005k_nonumeric.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_closefood5005k_nonumeric.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_lendepreward.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_lendepreward.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_per06.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_per06.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_cpp.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_cpp.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_mil20.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_mil20.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_cpp.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_cpp.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_cpp_ncp1.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_cpp_ncp1.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_cpp_incslFalse.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_cpp_incslFalse.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_cpp_death5.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_cpp_death5.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_cpp_lr5e3.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_cpp_lr5e3.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_cpp_lr5e5.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_cpp_lr5e5.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_cpp_lr1e5_ncp2_death3.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_cpp_lr1e5_ncp2_death3.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_a2c_ncp2_death3_normadv.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_a2c_ncp2_death3_normadv.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_a2c_ncp2_death3_bs512.yaml") # kaggle
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_a2c_ncp2_death3_bs512.yaml") # kaggle
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_a2c_ncp2_death3.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_a2c_ncp2_death3.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_a2c_ncp2_death3_ent001.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_a2c_ncp2_death3_ent001.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
     #
-    # config_path = os.path.join("modeling", "configs", "trainer_config_snake_ppo_ncp2_death3.yaml")
+    # config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_ppo_ncp2_death3.yaml")
     # train_agent(config_path, conv_layers_params, fc_layers,
     #             game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    config_path = os.path.join("modeling", "configs", "trainer_config_snake_cpp_ncp2_death3.yaml")
-    train_agent(config_path, conv_layers_params, fc_layers,
+    config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_cpp_ncp2_death3.yaml")
+    train_agent(config_path, None, None,
                 game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
 
-    config_path = os.path.join("modeling", "configs", "trainer_config_snake_a2c_ncp2_death3_ent05.yaml")
-    train_agent(config_path, conv_layers_params, fc_layers,
+    config_path = os.path.join("snake_modeling", "configs", "trainer_config_snake_a2c_ncp2_death3_ent05.yaml")
+    train_agent(config_path, None, None,
                 game=SnakeGame(10, 10, 10, default_start_prob=0.1), game_wrapper=SnakeGameWrap)
